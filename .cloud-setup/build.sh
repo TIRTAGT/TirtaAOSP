@@ -23,6 +23,10 @@ fi
 
 source functions.sh
 
+# Apply all patches for the $TIRTA_AOSP_DIR/aosp_source
+cd "$TIRTA_AOSP_DIR/aosp_source"
+git apply ./*.patch
+
 # Go back to $BUILD_DIR
 cd "$BUILD_DIR"
 
@@ -141,12 +145,24 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-# Create android signing keys
-SUBJECT="/C=ID/ST=DKI Jakarta/L=Jakarta/O=Matthew Tirtawidjaja/OU=Matthew Tirtawidjaja/CN=Matthew Tirtawidjaja/emailAddress=aospbuild@example.com"
-mkdir -p ~/.android-certs/
-for x in releasekey platform shared media networkstack; do \
-    ./development/tools/make_key ~/.android-certs/$x "$subject"; \
-done
+
+# Check if we don't have ~/.android-certs
+if [ ! -f ~/.android-certs ]; then
+	# Create android signing keys
+	SUBJECT="/C=ID/ST=DKI Jakarta/L=Jakarta/O=Matthew Tirtawidjaja/OU=Matthew Tirtawidjaja/CN=Matthew Tirtawidjaja/emailAddress=aospbuild@example.com"
+	mkdir -p ~/.android-certs/
+	chmod +x ./development/tools/make_key
+
+	export password="$(openssl rand -base64 64)"
+	echo "$password" > ~/.android-certs/password
+	chmod 600 ~/.android-certs/password
+	
+	for x in releasekey platform shared media networkstack; do \
+		./development/tools/make_key ~/.android-certs/$x "$subject"; \
+	done
+
+	unset password
+fi
 
 # Initialize the repo
 repo init -u https://github.com/LineageOS/android.git -b lineage-19.1 --git-lfs
