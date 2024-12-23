@@ -141,16 +141,16 @@ sudo apt install -y git git-lfs xz-utils curl bc bison build-essential flex g++-
 	libxml2 openjdk-8-jdk openjdk-11-jdk-headless
 
 # Clone the TIRTAGT AOSP repository
-git clone https://github.com/TIRTAGT/TirtaAOSP.git
+sudo git clone https://github.com/TIRTAGT/TirtaAOSP.git
 
 # Move to the TIRTAGT AOSP repository
 cd TirtaAOSP/
 
 # Checkout to the dev branch
-git checkout dev
+sudo git checkout dev
 
 # Add the executable bit to .cloud-setup/*.sh for the owner
-chmod 744 .cloud-setup/*.sh
+sudo chmod 744 .cloud-setup/*.sh
 
 # Set autobuild as the owner of /mnt/HDD_1
 sudo chown -R autobuild:autobuild /mnt/HDD_1
@@ -188,13 +188,3 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "success" "Compute Engine instance has been created successfully!"
-
-echo "Waiting for the instance to be running..."
-
-gcloud compute instances wait aosp-build-instance --zone="$DEFAULT_ZONE" --state=RUNNING
-if [ $? -ne 0 ]; then
-	echo "error" "Cannot wait for the instance to be running, exiting now."
-	exit 1
-fi
-
-echo "success" "Compute Engine instance is running!"

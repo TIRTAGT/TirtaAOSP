@@ -1,6 +1,18 @@
 #!/bin/bash
 ECHO_BINARY="$(whereis echo | cut -d ' ' -f 2)"
 
+# If $ECHO_BINARY is empty, try using which
+if [ -z "$ECHO_BINARY" ]; then
+    ECHO_BINARY="$(which echo)"
+fi
+
+# If $ECHO_BINARY is still empty, try checking if we have /usr/bin/echo
+if [ -z "$ECHO_BINARY" ]; then
+    if [ -f "/usr/bin/echo" ]; then
+        ECHO_BINARY="/usr/bin/echo"
+    fi
+fi
+
 # If we cannot find echo, quit now because we cannot setup our custom echo
 if [ -f "$ECHO_BINARY" ]; then
     echo  -e "\033[1;31mCannot find echo binary, overriding echo is disabled.\033[0m"
