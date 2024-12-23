@@ -84,7 +84,7 @@ if [ -d "$REPO_BIN_DIR" ]; then
 	PATH="$REPO_BIN_DIR:$PATH"
 fi
 
-\
+EOF
 fi
 
 # Load the updated ~/.profile
