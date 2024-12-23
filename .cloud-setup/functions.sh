@@ -14,7 +14,7 @@ if [ -z "$ECHO_BINARY" ]; then
 fi
 
 # If we cannot find echo, quit now because we cannot setup our custom echo
-if [ -f "$ECHO_BINARY" ]; then
+if [ ! -f "$ECHO_BINARY" ]; then
     echo  -e "\033[1;31mCannot find echo binary, overriding echo is disabled.\033[0m"
 else
     echo() {

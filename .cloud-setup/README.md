@@ -6,8 +6,8 @@ This folder is a container for any scripts that are used to automate the build p
 
 2. Get the required shell scripts from this repo:
 ```bash
-wget https://github.com/TIRTAGT/TirtaAOSP/raw/refs/heads/dev/.cloud-setup/functions.sh
-wget https://github.com/TIRTAGT/TirtaAOSP/raw/refs/heads/dev/.cloud-setup/gcp-infrastructure.sh
+wget https://github.com/TIRTAGT/TirtaAOSP/raw/refs/heads/dev/.cloud-setup/functions.sh -O functions.sh
+wget https://github.com/TIRTAGT/TirtaAOSP/raw/refs/heads/dev/.cloud-setup/gcp-infrastructure.sh -O gcp-infrastructure.sh
 ```
 
 3. Make the script executable:
