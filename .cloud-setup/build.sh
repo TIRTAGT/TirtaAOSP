@@ -53,7 +53,7 @@ if [ ! -d "$SDK_PLATFORM_TOOLS_DIR" ]; then
 
 # Add Android SDK Platform Tools to the PATH
 if [ -d "$SDK_PLATFORM_TOOLS_DIR" ]; then
-	PATH="$SDK_PLATFORM_TOOLS_DIR:$PATH"
+	PATH="$SDK_PLATFORM_TOOLS_DIR:\$PATH"
 fi
 
 # Set the ANDROID_HOME environment variable
@@ -81,7 +81,7 @@ if [ ! -d "$REPO_BIN_DIR" ]; then
 
 # Add repo to the PATH
 if [ -d "$REPO_BIN_DIR" ]; then
-	PATH="$REPO_BIN_DIR:$PATH"
+	PATH="$REPO_BIN_DIR:\$PATH"
 fi
 
 EOF
