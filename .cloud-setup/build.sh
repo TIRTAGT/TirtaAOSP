@@ -49,7 +49,7 @@ if [ ! -d "$SDK_PLATFORM_TOOLS_DIR" ]; then
 	rm platform-tools-latest-linux.zip
 
 	# Add the platform-tools directory to the PATH environment variable via ~/.profile
-	cat << "EOF" >> ~/.profile
+	cat << EOF >> ~/.profile
 
 # Add Android SDK Platform Tools to the PATH
 if [ -d "$SDK_PLATFORM_TOOLS_DIR" ]; then
@@ -77,14 +77,14 @@ if [ ! -d "$REPO_BIN_DIR" ]; then
 	fi
 
 	# Add the platform-tools directory to the PATH environment variable via ~/.profile
-	cat << "EOF" >> ~/.profile
+	cat << EOF >> ~/.profile
 
 # Add repo to the PATH
 if [ -d "$REPO_BIN_DIR" ]; then
 	PATH="$REPO_BIN_DIR:$PATH"
 fi
 
-EOF
+\
 fi
 
 # Load the updated ~/.profile
