@@ -1,12 +1,21 @@
 #!/bin/bash
 
+# Set default value for variables
+BUILD_DIR="${BUILD_DIR:-/mnt/HDD_1}"
+TIRTA_AOSP_DIR="${TIRTA_AOSP_DIR:-$BUILD_DIR/TirtaAOSP}"
+SDK_PLATFORM_TOOLS_DIR="${SDK_PLATFORM_TOOLS_DIR:-$BUILD_DIR/platform-tools}"
+REPO_BIN_DIR="${REPO_BIN_DIR:-$BUILD_DIR/repo-bin}"
+
 # Check if we are on autobuild user
 if [ "$(whoami)" != "autobuild" ]; then
 	echo "error" "Please run this script as autobuild user."
 	exit 1
 fi
 
-# Make sure we have functions.sh and it is executable
+# Go to $TIRTA_AOSP_DIR/.cloud-setup
+cd "$TIRTA_AOSP_DIR/.cloud-setup"
+
+# Make sure we have functions.sh
 if [ ! -f functions.sh ]; then
 	echo "error" "Cannot find functions.sh, exiting now."
 	exit 1
@@ -14,15 +23,15 @@ fi
 
 source functions.sh
 
-# Go to /mnt/HDD_1
-cd /mnt/HDD_1
+# Go back to $BUILD_DIR
+cd "$BUILD_DIR"
 
-# Check if we don't have platform-tools/
-if [ ! -d platform-tools/ ]; then
-	echo "Can't find platform-tools/ on the build disk, downloading Android SDK Platform Tools..."
+# Check if we don't have $SDK_PLATFORM_TOOLS_DIR
+if [ ! -d "$SDK_PLATFORM_TOOLS_DIR" ]; then
+	echo "Can't find platform-tools/ on the build location, downloading Android SDK Platform Tools..."
 
 	# Download Android SDK Platform Tools
-	wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+	wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip -O "$BUILD_DIR/platform-tools-latest-linux.zip"
 
 	# Extract the downloaded SDK Platform Tools
 	unzip platform-tools-latest-linux.zip
@@ -39,24 +48,24 @@ if [ ! -d platform-tools/ ]; then
 	cat << "EOF" >> ~/.profile
 
 # Add Android SDK Platform Tools to the PATH
-if [ -d "/mnt/HDD_1/platform-tools" ]; then
-	PATH="/mnt/HDD_1/platform-tools:$PATH"
+if [ -d "$SDK_PLATFORM_TOOLS_DIR" ]; then
+	PATH="$SDK_PLATFORM_TOOLS_DIR:$PATH"
 fi
 
 # Set the ANDROID_HOME environment variable
-export ANDROID_HOME="/mnt/HDD_1/platform-tools"
+export ANDROID_HOME="$SDK_PLATFORM_TOOLS_DIR"
 
 EOF
 fi
 
-# Check if we don't have repo-bin/
-if [ ! -d repo-bin/ ]; then
-	echo "Can't find repo-bin/ on the build disk, downloading repo..."
+# Check if we don't have $REPO_BIN_DIR
+if [ ! -d "$REPO_BIN_DIR" ]; then
+	echo "Can't find repo-bin/ on the build location, downloading repo..."
 
 	# Download repo
-	mkdir -p repo-bin/
-	curl https://storage.googleapis.com/git-repo-downloads/repo > repo-bin/repo
-	chmod a+x repo-bin/repo
+	mkdir "$REPO_BIN_DIR"
+	curl https://storage.googleapis.com/git-repo-downloads/repo > "$REPO_BIN_DIR/repo"
+	chmod a+x "$REPO_BIN_DIR/repo"
 
 	if [ $? -ne 0 ]; then
 		echo "error" "Cannot download repo, exiting now."
@@ -67,8 +76,8 @@ if [ ! -d repo-bin/ ]; then
 	cat << "EOF" >> ~/.profile
 
 # Add repo to the PATH
-if [ -d "/mnt/HDD_1/repo-bin" ]; then
-	PATH="/mnt/HDD_1/repo-bin:$PATH"
+if [ -d "$REPO_BIN_DIR" ]; then
+	PATH="$REPO_BIN_DIR:$PATH"
 fi
 
 EOF
@@ -76,6 +85,12 @@ fi
 
 # Load the updated ~/.profile
 source ~/.profile
+
+# Make sure $ANDROID_HOME is set
+if [ -z "$ANDROID_HOME" ]; then
+    echo "error" "ANDROID_HOME is not set, although it should be set by now. Please check the installation."
+    exit 1
+fi
 
 # Check if we can use adb
 adb --version 2> /dev/null
@@ -103,15 +118,15 @@ export USE_CCACHE=1
 export CCACHE_COMPRESS=1
 export CCACHE_MAXSIZE=50G # 50 GB
 
-# Make sure we are still on /mnt/HDD_1
-cd /mnt/HDD_1
+# Make sure we are still on the build directory
+cd "$BUILD_DIR"
 
 # Create folder for the android source
 mkdir -p android/
 cd android/
 
 # Copy everything from /mnt/HDD_1/TirtaAOSP/aosp_sources/* into /mnt/HDD_1/android/
-cp -r /mnt/HDD_1/TirtaAOSP/aosp_sources/* ./
+cp -r "$TIRTA_AOSP_DIR/aosp_sources/"* .
 
 # Create android signing keys
 SUBJECT="/C=ID/ST=DKI Jakarta/L=Jakarta/O=Matthew Tirtawidjaja/OU=Matthew Tirtawidjaja/CN=Matthew Tirtawidjaja/emailAddress=aospbuild@example.com"
