@@ -108,6 +108,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Check if we can use git
+git --version 2> /dev/null
+
+if [ $? -ne 0 ]; then
+    echo "error" "Git is not installed properly, please check the installation."
+    exit 1
+fi
+
 git config --global user.email "autobuild@localhost"
 git config --global user.name "AOSP Autobuild"
 git config --global trailer.changeid.key "Change-Id"
@@ -125,8 +133,13 @@ cd "$BUILD_DIR"
 mkdir -p android/
 cd android/
 
-# Copy everything from /mnt/HDD_1/TirtaAOSP/aosp_sources/* into /mnt/HDD_1/android/
-cp -r "$TIRTA_AOSP_DIR/aosp_sources/"* .
+# Copy everything from /mnt/HDD_1/TirtaAOSP/aosp_source/* into /mnt/HDD_1/android/
+cp -r "$TIRTA_AOSP_DIR/aosp_source/"* .
+
+if [ $? -ne 0 ]; then
+	echo "error" "Cannot pre-init some files from TirtaAOSP repo, exiting now."
+	exit 1
+fi
 
 # Create android signing keys
 SUBJECT="/C=ID/ST=DKI Jakarta/L=Jakarta/O=Matthew Tirtawidjaja/OU=Matthew Tirtawidjaja/CN=Matthew Tirtawidjaja/emailAddress=aospbuild@example.com"
