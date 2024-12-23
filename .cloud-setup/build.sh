@@ -126,28 +126,11 @@ git config --global trailer.changeid.key "Change-Id"
 git config --global color.ui false
 git lfs install
 
-export USE_CCACHE=1
-export CCACHE_COMPRESS=1
-export CCACHE_MAXSIZE=50G # 50 GB
-
-# Make sure we are still on the build directory
-cd "$BUILD_DIR"
-
-# Create folder for the android source
-mkdir -p android/
-cd android/
-
-# Copy everything from /mnt/HDD_1/TirtaAOSP/aosp_source/* into /mnt/HDD_1/android/
-cp -r "$TIRTA_AOSP_DIR/aosp_source/"* .
-
-if [ $? -ne 0 ]; then
-	echo "error" "Cannot pre-init some files from TirtaAOSP repo, exiting now."
-	exit 1
-fi
-
-
 # Check if we don't have ~/.android-certs
 if [ ! -f ~/.android-certs ]; then
+	# Go to $TIRTA_AOSP_DIR/aosp_source
+	cd "$TIRTA_AOSP_DIR/aosp_source"
+
 	# Create android signing keys
 	SUBJECT="/C=ID/ST=DKI Jakarta/L=Jakarta/O=Matthew Tirtawidjaja/OU=Matthew Tirtawidjaja/CN=Matthew Tirtawidjaja/emailAddress=aospbuild@example.com"
 	mkdir -p ~/.android-certs/
@@ -164,6 +147,17 @@ if [ ! -f ~/.android-certs ]; then
 	unset password
 fi
 
+# Make sure we are still on the build directory
+cd "$BUILD_DIR"
+
+export USE_CCACHE=1
+export CCACHE_COMPRESS=1
+export CCACHE_MAXSIZE=50G # 50 GB
+
+# Create folder for the android source
+mkdir lineage-19.x-build-gsi/
+cd lineage-19.x-build-gsi/
+
 # Initialize the repo
 repo init -u https://github.com/LineageOS/android.git -b lineage-19.1 --git-lfs
 
@@ -171,4 +165,4 @@ git clone https://github.com/AndyCGYan/lineage_build_unified lineage_build_unifi
 git clone https://github.com/AndyCGYan/lineage_patches_unified lineage_patches_unified -b lineage-19.1
 
 # Actually run the build
-#bash lineage_build_unified/buildbot_unified.sh treble A64VN
+bash lineage_build_unified/buildbot_unified.sh treble A64VN A64VS A64GN 64VN 64VS 64GN
