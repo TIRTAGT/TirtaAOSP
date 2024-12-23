@@ -22,6 +22,18 @@ fi
 
 source ./functions.sh
 
+# Check if we have the cloud setup cache directory
+if [ -d "tirta_aosp-cloud_setup_cache/" ]; then
+	# Ask should we delete the cache directory
+	read -p "Do you want to delete the previous cache directory? [y/N]: " DELETE_CACHE_DIR
+	if [ "$DELETE_CACHE_DIR" = "y" ]; then
+	    rm -rf tirta_aosp-cloud_setup_cache/
+    else
+		echo "error" "Cannot proceed without deleting the previous cache directory, exiting now."
+		exit 0
+	fi
+fi
+
 mkdir tirta_aosp-cloud_setup_cache/
 if [ $? -ne 0 ]; then
 	echo "error" "Cannot create cache directory, exiting now."
