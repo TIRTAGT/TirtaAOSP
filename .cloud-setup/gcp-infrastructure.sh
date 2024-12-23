@@ -67,20 +67,30 @@ DEFAULT_EXTRA_SSH_USER=$(whoami)
 
 #endregion
 
-echo "Creating service account for the Compute Engine..."
+echo "Checking if we should create a new service account for the Compute Engine..."
 
-gcloud iam service-accounts create "custom-service-account" \
-    --display-name "Custom Service Account" \
-	--description "Custom Service Account for Compute Engine"
+SERVICE_ACCOUNT_EXISTS=$(gcloud iam service-accounts list --format="value(email)" --filter="email:custom-service-account@$DEFAULT_PROJECT.iam.gserviceaccount.com")
 
-if [ $? -ne 0 ]; then
-	echo "error" "Cannot create service account, exiting now."
-	exit 1
+if [ ! -n "$SERVICE_ACCOUNT_EXISTS" ]; then
+	echo "Creating service account for the Compute Engine..."
+
+	gcloud iam service-accounts create "custom-service-account" \
+		--display-name "Custom Service Account" \
+		--description "Custom Service Account for Compute Engine"
+
+	if [ $? -ne 0 ]; then
+		echo "error" "Cannot create service account, exiting now."
+		exit 1
+	fi
+
+	echo "success" "Service account for the Compute Engine is created."
+else
+    echo "info" "Service account for the Compute Engine already exists, using the existing one."
 fi
 
 SERVICE_ACCOUNT_EMAIL="custom-service-account@$DEFAULT_PROJECT.iam.gserviceaccount.com"
 
-echo "Trying to enable Compute Engine API..."
+echo "Making sure that the Compute Engine API is enabled..."
 
 gcloud services enable compute.googleapis.com
 if [ $? -ne 0 ]; then
