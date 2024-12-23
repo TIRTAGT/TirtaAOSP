@@ -5,6 +5,7 @@ BUILD_DIR="${BUILD_DIR:-/mnt/HDD_1}"
 TIRTA_AOSP_DIR="${TIRTA_AOSP_DIR:-$BUILD_DIR/TirtaAOSP}"
 SDK_PLATFORM_TOOLS_DIR="${SDK_PLATFORM_TOOLS_DIR:-$BUILD_DIR/platform-tools}"
 REPO_BIN_DIR="${REPO_BIN_DIR:-$BUILD_DIR/repo-bin}"
+GSI_BUILD_DIR="${GSI_BUILD_DIR:-$BUILD_DIR/lineage-21-build-gsi}"
 
 # Check if we are on autobuild user
 if [ "$(whoami)" != "autobuild" ]; then
@@ -141,7 +142,7 @@ if [ ! -f ~/.android-certs ]; then
 	chmod 600 ~/.android-certs/password
 	
 	for x in releasekey platform shared media networkstack; do \
-		./development/tools/make_key ~/.android-certs/$x "$subject"; \
+		./development/tools/make_key ~/.android-certs/$x "$SUBJECT"; \
 	done
 
 	unset password
@@ -154,15 +155,40 @@ export USE_CCACHE=1
 export CCACHE_COMPRESS=1
 export CCACHE_MAXSIZE=50G # 50 GB
 
-# Create folder for the android source
-mkdir lineage-19.x-build-gsi/
-cd lineage-19.x-build-gsi/
 
-# Initialize the repo
-repo init -u https://github.com/LineageOS/android.git -b lineage-19.1 --git-lfs
+# Check if $GSI_BUILD_DIR didn't exist
+if [ ! -d "$GSI_BUILD_DIR" ]; then
+	mkdir "$GSI_BUILD_DIR"
+	cd "$GSI_BUILD_DIR"
 
-git clone https://github.com/AndyCGYan/lineage_build_unified lineage_build_unified -b lineage-19.1
-git clone https://github.com/AndyCGYan/lineage_patches_unified lineage_patches_unified -b lineage-19.1
+	# Initialize the repo
+	repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs
+	if [ $? -ne 0 ]; then
+		echo "error" "Cannot initialize the repo, exiting now."
+		exit 1
+	fi
+fi
+
+# Make sure we are on the build directory
+cd "$GSI_BUILD_DIR"
+
+# Check if lineage_build_unified didn't exist
+if [ ! -d lineage_build_unified ]; then
+	git clone https://github.com/AndyCGYan/lineage_build_unified lineage_build_unified -b lineage-21-light
+	if [$? -ne 0 ]; then
+		echo "error" "Cannot clone lineage_build_unified, exiting now."
+		exit 1
+	fi
+fi
+
+# Check if lineage_patches_unified didn't exist
+if [ ! -d lineage_patches_unified ]; then
+	git clone https://github.com/AndyCGYan/lineage_patches_unified lineage_patches_unified -b lineage-21-light
+	if [$? -ne 0 ]; then
+		echo "error" "Cannot clone lineage_patches_unified, exiting now."
+		exit 1
+	fi
+fi
 
 # Actually run the build
-bash lineage_build_unified/buildbot_unified.sh treble A64VN A64VS A64GN 64VN 64VS 64GN
+bash lineage_build_unified/buildbot_unified.sh treble 64VN
